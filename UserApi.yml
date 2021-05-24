@@ -1,0 +1,210 @@
+openapi: '3.0.2'
+info:
+  title: User.Api
+  version: '0.0.1'
+servers:
+  - url: https://api.server.test/v1
+paths:
+  /users:
+    get:
+      summary: Get a list of users
+      operationId: getListOfUsers
+      parameters:
+        - in: query
+          name: size
+          required: false
+          schema:
+            type: number
+            minimum: 1
+            maximum: 100
+            default: 10
+        - in: query
+          name: sortBy
+          required: false
+          schema:
+            type: string
+            enum:
+              - email
+              - status
+              - role
+            default: email
+        - in: query
+          name: cursorId
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of user objects.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '401':
+          $ref: '#components/responses/Unauthorized'
+        default:
+          $ref: '#components/responses/UnexpectedError'
+    post:
+      summary: Update a user by ID.
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/UserRequest'
+      responses:
+        '200':
+          description: A user object.
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '400':
+          $ref: '#components/responses/BadRequest'
+        '401':
+          $ref: '#components/responses/Unauthorized'
+        default: 
+          $ref: '#components/responses/UnexpectedError'
+  /users/{userId}:
+    parameters:
+      - in: path
+        name: userId
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      summary: Get a user by ID.
+      operationId: getUser
+      responses:  
+        '200':
+          description: A user object.
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '400':
+          $ref: '#components/responses/BadRequest'
+        '401':
+          $ref: '#components/responses/Unauthorized'
+        '404':
+          $ref: '#components/responses/NotFound'
+        default: 
+          $ref: '#components/responses/UnexpectedError'
+    put:
+      summary: Update a user by ID.
+      operationId: updateUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#components/schemas/UserRequest'
+      responses:
+        '200':
+          description: A user object.
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '400':
+          $ref: '#components/responses/BadRequest'
+        '401':
+          $ref: '#components/responses/Unauthorized'
+        '404':
+          $ref: '#components/responses/NotFound'
+        default: 
+          $ref: '#components/responses/UnexpectedError'
+    delete:
+      summary: Delete a user by ID.
+      operationId: deleteUser
+      responses:
+        '204':
+          description: Successfully deleted the resource.
+        '400':
+          $ref: '#components/responses/BadRequest'
+        '401':
+          $ref: '#components/responses/Unauthorized'
+        '404':
+          $ref: '#components/responses/NotFound'
+        default: 
+          $ref: '#components/responses/UnexpectedError'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        status:
+          $ref: '#/components/schemas/Status'
+        role:
+          $ref: '#/components/schemas/Role'
+    Role:
+      type: string
+      enum:
+        - GlobalAdmin
+        - Admin
+        - User
+    Status:
+      type: string
+      enum:
+        - Active
+        - Inactive
+    UserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/Role'
+    UserList:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        next:
+          type: string
+          format: url
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        traceId:
+          type: string
+  responses:
+    BadRequest:
+        description: Invalid request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+    NotFound:
+        description: The specified resource was not found.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+    Unauthorized:
+        description: Not authorized.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'
+    UnexpectedError:
+        description: Unexpected error.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Error'

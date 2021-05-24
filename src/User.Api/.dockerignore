@@ -1,0 +1,10 @@
+﻿.git/
+
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+[Bb]in/
+[Oo]bj/
