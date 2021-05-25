@@ -21,7 +21,7 @@ build:
 
 test:
 	dotnet test --collect:"XPlat Code Coverage" tests/$(TEST_PROJECT_NAME)/$(TEST_PROJECT_NAME).csproj; \
-	$$HOME/.dotnet/tools/reportgenerator "-reports:tests/$(TEST_PROJECT_NAME)/TestResults/*/coverage.cobertura.xml" "-targetdir:tests/User.Api.Tests/TestResults/CoverageReport" -reporttypes:Html;
+	$$HOME/.dotnet/tools/reportgenerator "-reports:tests/$(TEST_PROJECT_NAME)/TestResults/*/coverage.cobertura.xml" "-targetdir:tests/$(TEST_PROJECT_NAME)/TestResults/CoverageReport" -reporttypes:Html;
 
 install:
 	dotnet tool install -g dotnet-reportgenerator-globaltool
