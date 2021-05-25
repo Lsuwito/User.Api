@@ -36,6 +36,7 @@ msbuild.err
 msbuild.wrn
 
 TestResults/
+CoverageReport/
 
 # Visual Studio 2015
 .vs/

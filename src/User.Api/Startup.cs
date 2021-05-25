@@ -27,6 +27,7 @@ namespace User.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddHealthChecks();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "User.Api", Version = "v1"}); });
         }
 
