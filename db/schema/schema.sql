@@ -1,0 +1,3 @@
+﻿CREATE SCHEMA IF NOT EXISTS users;
+
+SET SCHEMA 'users'; 
