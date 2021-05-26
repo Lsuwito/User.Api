@@ -6,6 +6,7 @@ using User.Api.Repositories.Entities;
 
 namespace User.Api.Repositories
 {
+    /// <inheritdoc />
     public class UserRepository : IUserRepository
     {
         private readonly IDataAccess _dataAccess;
@@ -17,6 +18,7 @@ namespace User.Api.Repositories
             _commandProvider = commandProvider;
         }
 
+        /// <inheritdoc />
         public async Task<Guid> CreateUserAsync(UserEntity user)
         {
             try
@@ -25,9 +27,14 @@ namespace User.Api.Repositories
             }
             catch (UniqueConstraintViolationException ex)
             {
-                throw new ResourceConflictException(
-                    $"User '{user.Email}' already exist.", ex);
+                throw new ResourceConflictException($"User '{user.Email}' already exists.", ex);
             }
+        }
+
+        /// <inheritdoc />
+        public async Task<UserEntity> GetUserAsync(Guid userId)
+        {
+            return await _dataAccess.QuerySingleOrDefaultAsync<UserEntity>(_commandProvider.GetGetUserCommand(userId));
         }
     }
 }

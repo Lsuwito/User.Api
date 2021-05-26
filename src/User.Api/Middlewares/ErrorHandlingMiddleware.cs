@@ -33,9 +33,9 @@ namespace User.Api.Middlewares
             {
                 await _next(context);
             }
-            catch (ResourceConflictException rce)
+            catch (ApiException aex)
             {
-                await WriteErrorResponse(context.Response, rce.ErrorResponse);
+                await WriteErrorResponse(context.Response, aex.ErrorResponse);
             }
             catch (Exception ex)
             {

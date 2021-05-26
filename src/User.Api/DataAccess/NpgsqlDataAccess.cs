@@ -8,6 +8,7 @@ using User.Api.Exceptions;
 
 namespace User.Api.DataAccess
 {
+    /// <inheritdoc />
     public class NpgsqlDataAccess : IDataAccess
     {
         private readonly string _connectionString;
@@ -20,6 +21,7 @@ namespace User.Api.DataAccess
             _connectionString = configuration.GetConnectionString(ConnectionStringKey);
         }
 
+        /// <inheritdoc />
         public async Task<T> ExecuteScalarAsync<T>(CommandDefinition commandDefinition)
         {
             using var dbConnection = CreateConnection();
@@ -31,6 +33,20 @@ namespace User.Api.DataAccess
             catch (PostgresException ex) when (ex.SqlState == UniqueConstraintViolationCode)
             {
                 throw new UniqueConstraintViolationException(ex);
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
+        }
+        
+        /// <inheritdoc />
+        public async Task<T> QuerySingleOrDefaultAsync<T>(CommandDefinition commandDefinition)
+        {
+            using var dbConnection = CreateConnection();
+            try
+            {
+                return await dbConnection.QuerySingleOrDefaultAsync<T>(commandDefinition);
             }
             finally
             {

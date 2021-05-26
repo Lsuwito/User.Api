@@ -11,9 +11,17 @@ namespace User.Api.DataAccess
         /// <summary>
         /// Execute a data access command and returns a single value.  
         /// </summary>
-        /// <param name="command">A command definition</param>
+        /// <param name="command">A command definition.</param>
         /// <typeparam name="T">Return value's type.</typeparam>
         /// <returns>A single value result from executing the command.</returns>
         Task<T> ExecuteScalarAsync<T>(CommandDefinition command);
+
+        /// <summary>
+        /// Query a single record. If entity is not found, return null.
+        /// </summary>
+        /// <param name="commandDefinition">A command definition.</param>
+        /// <typeparam name="T">Return value's type.</typeparam>
+        /// <returns>An entity.</returns>
+        Task<T> QuerySingleOrDefaultAsync<T>(CommandDefinition commandDefinition);
     }
 }

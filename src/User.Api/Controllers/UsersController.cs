@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using User.Api.Exceptions;
 using User.Api.Models;
 using User.Api.Services;
 
@@ -48,9 +50,16 @@ namespace User.Api.Controllers
         }
         
         [HttpGet("{userId}")]
-        public IActionResult GetUser([FromRoute] Guid userId)
+        public async Task<IActionResult> GetUser([FromRoute] Guid userId)
         {
-            throw new NotImplementedException();
+            var user = await _userService.GetUserAsync(userId);
+            
+            if (user == null)
+            {
+                throw new ResourceNotFoundException("User was not found.");
+            }
+            
+            return Ok(user);
         }
         
         [HttpPut("{userId}")]

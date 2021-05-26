@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using User.Api.Controllers;
+using User.Api.Exceptions;
 using User.Api.Models;
 using User.Api.Services;
 using Xunit;
@@ -16,7 +17,7 @@ namespace User.Api.Tests.Controllers
 
         public UsersControllerTests()
         {
-            _userService = new Mock<IUserService>().Object;
+            _userService = new Mock<IUserService>(MockBehavior.Strict).Object;
             _userController = new UsersController(_userService);
         }
 
@@ -33,17 +34,28 @@ namespace User.Api.Tests.Controllers
         }
         
         [Fact(DisplayName="When get a user, should get a user from the service")]
-        public void GetUser()
+        public async Task GetUser()
         {
             var userId = Guid.NewGuid();
-            Assert.IsType<OkObjectResult>(_userController.GetUser(userId));
+
+            var mockUserService = Mock.Get(_userService);
+            var user = new Models.User();
+            mockUserService.Setup(x => x.GetUserAsync(userId)).ReturnsAsync(user);
+
+            var result = await _userController.GetUser(userId);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Same(user, okResult.Value);
         }
         
-        [Fact(DisplayName="When get a user and a user is not found, should return not found status code with error response")]
-        public void GetUserNotFound()
+        [Fact(DisplayName="When get a user and a user is not found, should throw not found exception")]
+        public async Task GetUserNotFound()
         {
             var userId = Guid.NewGuid();
-            Assert.IsType<NotFoundObjectResult>(_userController.GetUser(userId));
+            var mockUserService = Mock.Get(_userService);
+            mockUserService.Setup(x => x.GetUserAsync(userId)).ReturnsAsync(default(Models.User));
+            
+            var exception = await Assert.ThrowsAsync<ResourceNotFoundException>(() => _userController.GetUser(userId));
+            Assert.Equal("User was not found.", exception.Message);
         }
         
         [Fact(DisplayName="When create a user, should create a user from the service")]

@@ -10,10 +10,17 @@ namespace User.Api.Repositories
     public interface IUserRepository
     {
         /// <summary>
-        /// Create a user.
+        /// Create a new user.
         /// </summary>
         /// <param name="user">An instance of <see cref="UserEntity"/>.</param>
         /// <returns>A user id.</returns>
         Task<Guid> CreateUserAsync(UserEntity user);
+
+        /// <summary>
+        /// Get a user. 
+        /// </summary>
+        /// <param name="userId">A user ID.</param>
+        /// <returns>An instance of <see cref="UserEntity"/>.</returns>
+        Task<UserEntity> GetUserAsync(Guid userId);
     }
 }

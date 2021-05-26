@@ -14,6 +14,7 @@ namespace User.Api.Extensions
         /// <param name="services">The <see cref="IServiceCollection"/> to add the dependencies to.</param>
         public static void AddPostgresDataAccess(this IServiceCollection services)
         {
+            Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
             services.AddSingleton<IDataAccess, NpgsqlDataAccess>();
             services.AddSingleton<ICommandProvider, NpgsqlCommandProvider>();
         }
