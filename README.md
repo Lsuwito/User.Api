@@ -29,7 +29,7 @@ dotnet run -p src/User.Api/User.Api.csproj -c Debug
 
 Run the unit tests and collect the code coverage data
 ```
-dotnet test --collect:"XPlat Code Coverage" tests/User.Api.Tests/User.Api.Tests.csproj;
+dotnet test --collect:"XPlat Code Coverage" tests/User.Api.Tests/User.Api.Unit.Tests.csproj;
 ```
 
 Install report generator tool
@@ -44,7 +44,21 @@ reportgenerator "-reports:tests/User.Api.Tests/TestResults/*/coverage.cobertura.
 
 ## Integration Tests
 
-TBD
+Run the API and database as Docker containers
+```
+docker-compose up -d
+```
+
+Run the integration tests
+```
+dotnet test tests\User.Api.Tests\User.Api.Integration.Tests.csproj -l html
+```
+
+Or run the integration tests in docker container
+```
+docker build -t user_api_integration_tests -f tests\User.Api.Integration.Tests\Dockerfile .
+docker run --rm -v /your/testresult/path/:/app/TestResults --networks userapi_elk user_api_integration_tests
+```
 
 ## Build and Run using Make
 

@@ -7,7 +7,7 @@ using User.Api.Repositories;
 using User.Api.Repositories.Entities;
 using Xunit;
 
-namespace User.Api.Tests.Repositories
+namespace User.Api.Unit.Tests.Repositories
 {
     public class UserRepositoryTests
     {

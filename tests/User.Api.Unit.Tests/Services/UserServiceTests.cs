@@ -9,7 +9,7 @@ using User.Api.Repositories.Entities;
 using User.Api.Services;
 using Xunit;
 
-namespace User.Api.Tests.Services
+namespace User.Api.Unit.Tests.Services
 {
     public class UserServiceTests
     {

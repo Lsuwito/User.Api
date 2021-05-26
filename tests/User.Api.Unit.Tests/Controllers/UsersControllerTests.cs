@@ -7,7 +7,7 @@ using User.Api.Models;
 using User.Api.Services;
 using Xunit;
 
-namespace User.Api.Tests.Controllers
+namespace User.Api.Unit.Tests.Controllers
 {
     public class UsersControllerTests
     {

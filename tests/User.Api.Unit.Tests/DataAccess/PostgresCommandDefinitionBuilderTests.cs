@@ -6,7 +6,7 @@ using User.Api.Models;
 using User.Api.Repositories.Entities;
 using Xunit;
 
-namespace User.Api.Tests.DataAccess
+namespace User.Api.Unit.Tests.DataAccess
 {
     public class PostgresCommandDefinitionBuilderTests
     {

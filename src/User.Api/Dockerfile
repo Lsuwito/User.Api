@@ -5,11 +5,11 @@ RUN rpm -Uvh https://packages.microsoft.com/config/centos/7/packages-microsoft-p
 
 WORKDIR /app
 
-COPY ./User.Api.csproj ./User.Api.csproj
+COPY ./src/User.Api/User.Api.csproj ./User.Api.csproj
   
 RUN dotnet restore
 
-COPY . .
+COPY ./src/User.Api/ .
 RUN dotnet publish -c Release -o dist
 
 FROM amazonlinux:2

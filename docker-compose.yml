@@ -1,5 +1,20 @@
 ﻿version: "3.9"
 services:
+  api:
+    build:
+      context: .
+      dockerfile: src/User.Api/Dockerfile
+    ports:
+      - 5000:5000
+      - 5001:5001
+    environment:
+      ConnectionStrings__UsersDb: Host=db;Port=5432;Database=postgres;Username=postgres;Password=postgres;
+      Serilog__MinimumLevel__Default: Verbose
+      Serilog__MinimumLevel__Override__Microsoft: Verbose
+    depends_on:
+      - db
+    networks:
+      - elk
   db:
     image: postgres:13
     ports: 
