@@ -55,7 +55,7 @@ make image run-docker
 make test
 ```
 
-## Process Flow
+## Operation Flow
 
 UsersController -> UserService -> UserRepository -> DataAccess
 
@@ -65,5 +65,5 @@ This API uses PostgreSQL database. The data access implementation uses Dapper as
 
 ## Database Setup
 
-You can use docker-compose to provision and initialize a postgres database for testing. The database scripts can be found in the db folder. It is mounted as the docker-entrypoint-initdb.d volume of the postgres container. 
+You can use docker-compose to provision and initialize a PostgreSQL database for testing. The database scripts can be found in the db folder. It is mounted as the docker-entrypoint-initdb.d volume of the PostgreSQL container. 
 

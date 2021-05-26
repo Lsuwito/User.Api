@@ -22,5 +22,20 @@ namespace User.Api.Services
         /// <param name="userId">A user ID.</param>
         /// <returns>An instance of <see cref="Models.User"/>.</returns>
         Task<Models.User> GetUserAsync(Guid userId);
+
+        /// <summary>
+        /// Delete a user by ID.
+        /// </summary>
+        /// <param name="userId">A user ID.</param>
+        /// <returns></returns>
+        Task DeleteUserAsync(Guid userId);
+
+        /// <summary>
+        /// Update a user.
+        /// </summary>
+        /// <param name="userId">A user ID.</param>
+        /// <param name="userRequest">An instance of <see cref="UserRequest"/></param>
+        /// <returns>An instance of <see cref="Models.User"/>.</returns>
+        Task<Models.User> UpdateUserAsync(Guid userId, UserRequest userRequest);
     }
 }

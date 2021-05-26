@@ -11,6 +11,9 @@ using User.Api.Models;
 
 namespace User.Api.Middlewares
 {
+    /// <summary>
+    /// Provide global error handling middleware capability.
+    /// </summary>
     public class ApiErrorHandlingMiddleware
     {
         private readonly RequestDelegate _next;
@@ -23,9 +26,12 @@ namespace User.Api.Middlewares
         }
 
         /// <summary>
-        /// This method handles exception by writing error json to the response and log when necessary.
+        /// This method handles exception by writing error json to the response and log the exception when necessary.
+        /// This method will use the code in the ApiException as the http status code of the response.
+        /// This method will generate an Internal Server Error http status code and generic error message
+        /// for any unexpected exception, and the exception will be logged as well.
         /// </summary>
-        /// <param name="context">Http context.</param>
+        /// <param name="context">A <see cref="HttpContext"/>.</param>
         /// <returns></returns>
         public async Task Invoke(HttpContext context)
         {

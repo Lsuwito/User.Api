@@ -9,14 +9,13 @@ using User.Api.Exceptions;
 namespace User.Api.DataAccess
 {
     /// <inheritdoc />
-    public class NpgsqlDataAccess : IDataAccess
+    public class PostgresDataAccess : IDataAccess
     {
         private readonly string _connectionString;
         private const string ConnectionStringKey = "UsersDb";
         private const string UniqueConstraintViolationCode = "23505";
         
-        
-        public NpgsqlDataAccess(IConfiguration configuration)
+        public PostgresDataAccess(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString(ConnectionStringKey);
         }

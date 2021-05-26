@@ -10,12 +10,12 @@ namespace User.Api.Repositories
     public class UserRepository : IUserRepository
     {
         private readonly IDataAccess _dataAccess;
-        private readonly ICommandProvider _commandProvider;
+        private readonly ICommandDefinitionBuilder _commandDefinitionBuilder;
 
-        public UserRepository(IDataAccess dataAccess, ICommandProvider commandProvider)
+        public UserRepository(IDataAccess dataAccess, ICommandDefinitionBuilder commandDefinitionBuilder)
         {
             _dataAccess = dataAccess;
-            _commandProvider = commandProvider;
+            _commandDefinitionBuilder = commandDefinitionBuilder;
         }
 
         /// <inheritdoc />
@@ -23,7 +23,7 @@ namespace User.Api.Repositories
         {
             try
             {
-                return await _dataAccess.ExecuteScalarAsync<Guid>(_commandProvider.GetCreateUserCommand(user));
+                return await _dataAccess.ExecuteScalarAsync<Guid>(_commandDefinitionBuilder.BuildCreateUserCommand(user));
             }
             catch (UniqueConstraintViolationException ex)
             {
@@ -34,7 +34,21 @@ namespace User.Api.Repositories
         /// <inheritdoc />
         public async Task<UserEntity> GetUserAsync(Guid userId)
         {
-            return await _dataAccess.QuerySingleOrDefaultAsync<UserEntity>(_commandProvider.GetGetUserCommand(userId));
+            return await _dataAccess.QuerySingleOrDefaultAsync<UserEntity>(_commandDefinitionBuilder.BuildGetUserCommand(userId));
+        }
+        
+        /// <inheritdoc />
+        public async Task<bool> DeleteUserAsync(Guid userId)
+        {
+            var count = await _dataAccess.ExecuteScalarAsync<int>(_commandDefinitionBuilder.BuildDeleteUserCommand(userId));
+            return count == 1;
+        }
+        
+        /// <inheritdoc />
+        public async Task<bool> UpdateUserAsync(UserEntity user)
+        {
+            var count = await _dataAccess.ExecuteScalarAsync<int>(_commandDefinitionBuilder.BuildUpdateUserCommand(user));
+            return count == 1;
         }
     }
 }

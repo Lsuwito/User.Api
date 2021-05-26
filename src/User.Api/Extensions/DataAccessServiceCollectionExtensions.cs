@@ -15,8 +15,9 @@ namespace User.Api.Extensions
         public static void AddPostgresDataAccess(this IServiceCollection services)
         {
             Dapper.DefaultTypeMap.MatchNamesWithUnderscores = true;
-            services.AddSingleton<IDataAccess, NpgsqlDataAccess>();
-            services.AddSingleton<ICommandProvider, NpgsqlCommandProvider>();
+            
+            services.AddSingleton<IDataAccess, PostgresDataAccess>();
+            services.AddSingleton<ICommandDefinitionBuilder, PostgresCommandDefinitionBuilder>();
         }
     }
 }

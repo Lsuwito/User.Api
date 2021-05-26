@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using User.Api.Exceptions;
@@ -21,15 +20,15 @@ namespace User.Api.Controllers
         {
             _userService = userService;
         }
+        
         /// <summary>
         /// Get a list of users.
         /// </summary>
         /// <param name="size">Maximum number of users to return in the response.</param>
         /// <param name="sortBy">Sort the user list according to the specified field.</param>
         /// <param name="cursorId">Cursor reference to get the next batch of result.</param>
-        /// <returns>An action result with OK code with a <see cref="Users"/> object on successful query.
-        /// Or an <see cref="Error"/> object on failure.</returns>
-        /// <exception cref="NotImplementedException"></exception>
+        /// <returns>An instance of <see cref="OkObjectResult"/> with a <see cref="Users"/> object as the value,
+        /// or an <see cref="Error"/> object if operation fails.</returns>
         [HttpGet]
         public IActionResult GetUsers([FromQuery] int? size, [FromQuery] SortByEnum? sortBy, [FromQuery] string cursorId)
         {
@@ -40,8 +39,8 @@ namespace User.Api.Controllers
         /// Create a new user.
         /// </summary>
         /// <param name="request">An instance of <see cref="UserRequest"/> containing user data.</param>
-        /// <returns>An action result with OK code with a <see cref="User"/> object on successful creation.
-        /// Or an <see cref="Error"/> object on failure.</returns>
+        /// <returns>An instance of <see cref="OkObjectResult"/> with a <see cref="User"/> object as the value,
+        /// or an <see cref="Error"/> object if operation fails.</returns>
         [HttpPost]
         public async Task<IActionResult> CreateUserAsync([FromBody] UserRequest request)
         {
@@ -49,29 +48,46 @@ namespace User.Api.Controllers
             return Ok(user);
         }
         
+        /// <summary>
+        /// Get a user by ID.
+        /// </summary>
+        /// <param name="userId">A user ID.</param>
+        /// <returns>An instance of <see cref="OkObjectResult"/> with a <see cref="User"/> object as the value,
+        /// or an <see cref="Error"/> object if operation fails.</returns>
+        /// <exception cref="ResourceNotFoundException"></exception>
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetUser([FromRoute] Guid userId)
         {
             var user = await _userService.GetUserAsync(userId);
-            
-            if (user == null)
-            {
-                throw new ResourceNotFoundException("User was not found.");
-            }
-            
             return Ok(user);
         }
         
+        /// <summary>
+        /// Update a user.
+        /// </summary>
+        /// <param name="userId">A user ID.</param>
+        /// <param name="request">An instance of <see cref="UserRequest"/>.</param>
+        /// <returns>An instance of <see cref="OkObjectResult"/> with a <see cref="User"/> object as the value,
+        /// or an <see cref="Error"/> object if operation fails.</returns>
         [HttpPut("{userId}")]
-        public IActionResult UpdateUser([FromRoute] Guid userId, [FromBody] UserRequest request)
+        public async Task<IActionResult> UpdateUser([FromRoute] Guid userId, [FromBody] UserRequest request)
         {
-            throw new NotImplementedException();
+            var user = await _userService.UpdateUserAsync(userId, request);
+            return Ok(user);
         }
         
+        /// <summary>
+        /// Delete a user by ID.
+        /// </summary>
+        /// <param name="userId">A user ID.</param>
+        /// <returns>
+        /// An instance of <see cref="OkResult"/>, or an <see cref="Error"/> object if operation fails.
+        /// </returns>
         [HttpDelete("{userId}")]
-        public IActionResult DeleteUser([FromRoute] Guid userId)
+        public async Task<IActionResult> DeleteUser([FromRoute] Guid userId)
         {
-            throw new NotImplementedException();
+            await _userService.DeleteUserAsync(userId);
+            return Ok();
         }
     }
 }
