@@ -1,7 +1,7 @@
 ﻿CREATE OR REPLACE FUNCTION create_user(
  email varchar(255),
- role role,
- status status
+ role int,
+ status int
 )
 RETURNS uuid AS $$
 DECLARE inserted_user_id uuid;

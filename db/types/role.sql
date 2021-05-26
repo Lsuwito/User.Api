@@ -1,1 +1,0 @@
-﻿CREATE TYPE role AS ENUM ('admin', 'globaladmin', 'user');

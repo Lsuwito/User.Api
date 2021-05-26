@@ -1,8 +1,16 @@
-﻿namespace User.Api.Models
+﻿using System.Net;
+
+namespace User.Api.Models
 {
     public class Error
     {
-        public string Code { get; set; }
-        public string Message { get; set; }
+        public Error(HttpStatusCode code, string message)
+        {
+            Code = code;
+            Message = message;
+        }
+        
+        public HttpStatusCode Code { get; }
+        public string Message { get; }
     }
 }

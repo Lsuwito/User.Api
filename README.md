@@ -4,6 +4,7 @@ Requirements:
 1. .NET 5.0 SDK
 2. Docker
 3. dotnet-reportgenerator-globaltool for test coverage report
+4. PostgreSQL
 
 ## Building the API
 
@@ -41,6 +42,10 @@ Generate the code coverage report in Html format
 reportgenerator "-reports:tests/User.Api.Tests/TestResults/*/coverage.cobertura.xml" "-targetdir:tests/User.Api.Tests/TestResults/CoverageReport" -reporttypes:Html;
 ```
 
+## Integration Tests
+
+TBD
+
 ## Build and Run using Make
 
 ```
@@ -50,4 +55,15 @@ make image run-docker
 make test
 ```
 
+## Process Flow
+
+UsersController -> UserService -> UserRepository -> DataAccess
+
+## DataAccess Implementation
+
+This API uses PostgreSQL database. The data access implementation uses Dapper as the ORM and Npgsql for database access to PostgreSQL. 
+
+## Database Setup
+
+You can use docker-compose to provision and initialize a postgres database for testing. The database scripts can be found in the db folder. It is mounted as the docker-entrypoint-initdb.d volume of the postgres container. 
 

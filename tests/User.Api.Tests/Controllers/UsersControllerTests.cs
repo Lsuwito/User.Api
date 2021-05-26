@@ -1,48 +1,53 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Moq;
 using User.Api.Controllers;
 using User.Api.Models;
+using User.Api.Services;
 using Xunit;
 
 namespace User.Api.Tests.Controllers
 {
-    public class UserControllerTests
+    public class UsersControllerTests
     {
-        private readonly UserController _controller;
+        private readonly UsersController _userController;
+        private readonly IUserService _userService;
 
-        public UserControllerTests()
+        public UsersControllerTests()
         {
-            _controller = new UserController();
+            _userService = new Mock<IUserService>().Object;
+            _userController = new UsersController(_userService);
         }
 
         [Fact(DisplayName="When get users without parameters, should get users from the service using default parameter values.")]
         public void GetUsersWithDefaultParameters()
         {
-            _controller.GetUsers(null, null, null);
+            _userController.GetUsers(null, null, null);
         }
         
         [Fact(DisplayName="When get users, should get users from the service using the specified parameters")]
         public void GetUsersWithParameters()
         {
-            _controller.GetUsers(null, null, null);
+            _userController.GetUsers(null, null, null);
         }
         
         [Fact(DisplayName="When get a user, should get a user from the service")]
         public void GetUser()
         {
             var userId = Guid.NewGuid();
-            Assert.IsType<OkObjectResult>(_controller.GetUser(userId));
+            Assert.IsType<OkObjectResult>(_userController.GetUser(userId));
         }
         
         [Fact(DisplayName="When get a user and a user is not found, should return not found status code with error response")]
         public void GetUserNotFound()
         {
             var userId = Guid.NewGuid();
-            Assert.IsType<NotFoundObjectResult>(_controller.GetUser(userId));
+            Assert.IsType<NotFoundObjectResult>(_userController.GetUser(userId));
         }
         
         [Fact(DisplayName="When create a user, should create a user from the service")]
-        public void CreateUser()
+        public async Task CreateUser()
         {
             var request = new UserRequest
             {
@@ -51,7 +56,14 @@ namespace User.Api.Tests.Controllers
                 Role = RoleEnum.Admin
             };
             
-            Assert.IsType<OkObjectResult>(_controller.CreateUser(request));
+            var mockUserService = Mock.Get(_userService);
+            
+            var user = new Models.User();
+            mockUserService.Setup(x => x.CreateUserAsync(request)).ReturnsAsync(user);
+            
+            var result = await _userController.CreateUserAsync(request);
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Same(user, okResult.Value);
         }
         
         [Fact(DisplayName="When update a user, should get a user from the service")]
@@ -66,7 +78,7 @@ namespace User.Api.Tests.Controllers
                 Role = RoleEnum.Admin
             };
             
-            Assert.IsType<OkObjectResult>(_controller.UpdateUser(userId, request));
+            Assert.IsType<OkObjectResult>(_userController.UpdateUser(userId, request));
         }
         
         [Fact(DisplayName="When update a user and user is not found, should return not found status code")]
@@ -74,7 +86,7 @@ namespace User.Api.Tests.Controllers
         {
             var userId = Guid.NewGuid();
 
-            Assert.IsType<NoContentResult>(_controller.DeleteUser(userId));
+            Assert.IsType<NoContentResult>(_userController.DeleteUser(userId));
         }
         
         [Fact(DisplayName="When delete a user, should delete a user from the service")]
@@ -82,7 +94,7 @@ namespace User.Api.Tests.Controllers
         {
             var userId = Guid.NewGuid();
 
-            Assert.IsType<NoContentResult>(_controller.DeleteUser(userId));
+            Assert.IsType<NoContentResult>(_userController.DeleteUser(userId));
         }
         
         [Fact(DisplayName="When delete a user and user is not found, should return not found status code")]
@@ -90,7 +102,7 @@ namespace User.Api.Tests.Controllers
         {
             var userId = Guid.NewGuid();
 
-            Assert.IsType<NoContentResult>(_controller.DeleteUser(userId));
+            Assert.IsType<NoContentResult>(_userController.DeleteUser(userId));
         }
     }
 }
