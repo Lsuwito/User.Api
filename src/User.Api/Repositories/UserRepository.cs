@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using User.Api.DataAccess;
 using User.Api.Exceptions;
+using User.Api.Models;
 using User.Api.Repositories.Entities;
 
 namespace User.Api.Repositories
@@ -43,7 +45,16 @@ namespace User.Api.Repositories
             var count = await _dataAccess.ExecuteScalarAsync<int>(_commandDefinitionBuilder.BuildDeleteUserCommand(userId));
             return count == 1;
         }
-        
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<UserEntity>> GetUsersAsync(string sortBy, bool sortAsc, int limit, string lastSortValue, string lastSecondarySortValue)
+        {
+            var commandDefinition = _commandDefinitionBuilder.BuildGetUsersCommand(sortBy, 
+                sortAsc, limit, lastSortValue, lastSecondarySortValue);
+            
+            return await _dataAccess.QueryAsync<UserEntity>(commandDefinition);
+        }
+
         /// <inheritdoc />
         public async Task<bool> UpdateUserAsync(UserEntity user)
         {

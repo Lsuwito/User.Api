@@ -9,5 +9,6 @@ namespace User.Api.Repositories.Entities
         public string Email { get; set; }
         public RoleEnum Role { get; set; }
         public UserStatusEnum Status { get; set; }
+        public DateTime Created { get; set; }
     }
 }

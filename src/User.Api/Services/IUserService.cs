@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using User.Api.Models;
 
@@ -37,5 +38,14 @@ namespace User.Api.Services
         /// <param name="userRequest">An instance of <see cref="UserRequest"/></param>
         /// <returns>An instance of <see cref="Models.User"/>.</returns>
         Task<Models.User> UpdateUserAsync(Guid userId, UserRequest userRequest);
+
+        /// <summary>
+        /// Get list of users.
+        /// </summary>
+        /// <param name="sortBy">Column to sort on.</param>
+        /// <param name="limit">The maximum number of records to return.</param>
+        /// <param name="cursorId">Base64 serialized <see cref="PaginationCursor"/>.</param>
+        /// <returns>An instance of <see cref="Users"/></returns>
+        Task<Users> GetUsersAsync(SortByEnum sortBy, int limit, string cursorId);
     }
 }

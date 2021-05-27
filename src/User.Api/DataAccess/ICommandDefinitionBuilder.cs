@@ -1,5 +1,6 @@
 ﻿using System;
 using Dapper;
+using User.Api.Models;
 using User.Api.Repositories.Entities;
 
 namespace User.Api.DataAccess
@@ -36,5 +37,17 @@ namespace User.Api.DataAccess
         /// <param name="user">A user ID.</param>
         /// <returns>An instance of <see cref="CommandDefinition"/>.</returns>
         CommandDefinition BuildUpdateUserCommand(UserEntity user);
+
+        /// <summary>
+        /// Build a command definition for get users
+        /// </summary>
+        /// <param name="sortBy">Column to sort on.</param>
+        /// <param name="sortAsc">Boolean indicator to sort in ascending direction.</param>
+        /// <param name="limit">Limit number of records to return.</param>
+        /// <param name="lastSortValue">Cursor starting point value.</param>
+        /// <param name="lastSecondarySortValue">Cursor starting point secondary value.</param>
+        /// <returns></returns>
+        CommandDefinition BuildGetUsersCommand(string sortBy, bool sortAsc, int limit, 
+            string lastSortValue, string lastSecondarySortValue);
     }
 }

@@ -8,5 +8,6 @@ namespace User.Api.Models
         public string Email { get; set; }
         public UserStatusEnum Status { get; set; }
         public RoleEnum Role { get; set; }
+        public DateTime Created { get; set; }
     }
 }

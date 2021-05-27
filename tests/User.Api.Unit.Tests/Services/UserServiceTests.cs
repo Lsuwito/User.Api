@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Moq;
@@ -15,14 +17,16 @@ namespace User.Api.Unit.Tests.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly UserService _userService;
+        private readonly IPaginationCursorConverter _paginationCursorConverter;
 
         public UserServiceTests()
         {
             var mapper = new MapperConfiguration(cfg => cfg.AddProfile<MappingProfile>())
                 .CreateMapper();
             
-            _userRepository = new Mock<IUserRepository>().Object;
-            _userService = new UserService(_userRepository, mapper);
+            _userRepository = new Mock<IUserRepository>(MockBehavior.Strict).Object;
+            _paginationCursorConverter = new Mock<IPaginationCursorConverter>(MockBehavior.Strict).Object;
+            _userService = new UserService(_userRepository, mapper, _paginationCursorConverter);
         }
 
         [Fact(DisplayName = "When create a user, should create user in repository and return a user model")]
@@ -142,6 +146,118 @@ namespace User.Api.Unit.Tests.Services
             
             var userId = Guid.NewGuid();
             await Assert.ThrowsAsync<ResourceNotFoundException>(() => _userService.UpdateUserAsync(userId, request));
+        }
+
+        [Fact(DisplayName = "When get users, should return a list of users and next url")]
+        public async Task GetUsers()
+        {
+            var mockUserRepository = Mock.Get(_userRepository);
+            
+            var entities = new List<UserEntity>
+            {
+                new()
+                {
+                    UserId = Guid.NewGuid(), 
+                    Email = "user1@skitterbytes.com", 
+                    Role = RoleEnum.Admin, 
+                    Status = UserStatusEnum.Active
+                },
+                new()
+                {
+                    UserId = Guid.NewGuid(), 
+                    Email = "user2@skitterbytes.com", 
+                    Role = RoleEnum.User, 
+                    Status = UserStatusEnum.Inactive
+                }
+            };
+            
+            mockUserRepository
+                .Setup(x => x.GetUsersAsync("email", true, 10, null, null))
+                .ReturnsAsync(entities);
+
+            var mockCursorConverter = Mock.Get(_paginationCursorConverter);
+            var cursorId = "xyz";
+            
+            mockCursorConverter
+                .Setup(x => x.ToString(It.IsAny<PaginationCursor>()))
+                .Returns(cursorId);
+            
+            var users = await _userService.GetUsersAsync(SortByEnum.Email, 10, null);
+
+            Assert.Collection(users.Items, 
+                user => AssertUser(entities[0], user), 
+                user => AssertUser(entities[1], user));
+            
+            Assert.Equal($"sortBy=Email&size=10&cursorId={cursorId}", users.NextUrl);
+        }
+
+        [Fact(DisplayName = "When get users with cursor, should get a list of users starting from the specified cursor")]
+        public async Task GetUsersWithCursor()
+        {
+            var mockUserRepository = Mock.Get(_userRepository);
+            
+            var entities = new List<UserEntity>
+            {
+                new()
+                {
+                    UserId = Guid.NewGuid(), 
+                    Email = "user1@skitterbytes.com", 
+                    Role = RoleEnum.Admin, 
+                    Status = UserStatusEnum.Active
+                }
+            };
+            
+            var mockCursorConverter = Mock.Get(_paginationCursorConverter);
+            var cursorId = "xyz";
+            var nextCursorId = "abc";
+            var cursor = new PaginationCursor
+            {
+                LastSortValue = "email",
+                LastSecondarySortValue = Guid.NewGuid().ToString()
+            };
+            
+            mockCursorConverter
+                .Setup(x => x.FromString(cursorId))
+                .Returns(cursor);
+            
+            mockCursorConverter
+                .Setup(x => x.ToString(It.IsAny<PaginationCursor>()))
+                .Returns(nextCursorId);
+            
+            mockUserRepository
+                .Setup(x => x.GetUsersAsync(
+                    "email", true, 10, cursor.LastSortValue, cursor.LastSecondarySortValue))
+                .ReturnsAsync(entities);
+            
+            var users = await _userService.GetUsersAsync(SortByEnum.Email, 10, cursorId);
+
+            Assert.Collection(users.Items, user => AssertUser(entities[0], user));
+            
+            Assert.Equal($"sortBy=Email&size=10&cursorId={nextCursorId}", users.NextUrl);
+        }
+        
+        [Fact(DisplayName = "When get users and result is empty, should have no next url")]
+        public async Task GetUsersEmptyResult()
+        {
+            var mockUserRepository = Mock.Get(_userRepository);
+            var entities = Enumerable.Empty<UserEntity>();
+            
+            mockUserRepository
+                .Setup(x => x.GetUsersAsync("email", true, 10, null, null))
+                .ReturnsAsync(entities);
+            
+            var users = await _userService.GetUsersAsync(SortByEnum.Email, 10, null);
+
+            Assert.Empty(users.Items);
+            Assert.Null(users.NextUrl);
+        }
+        
+        private void AssertUser(UserEntity expected, Models.User actual)
+        {
+            Assert.Equal(expected.UserId, actual.UserId);
+            Assert.Equal(expected.Email, actual.Email);
+            Assert.Equal(expected.Role, actual.Role);
+            Assert.Equal(expected.Status, actual.Status);
         }
     }
 }

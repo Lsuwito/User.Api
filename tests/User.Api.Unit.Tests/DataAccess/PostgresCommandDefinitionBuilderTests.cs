@@ -88,6 +88,26 @@ namespace User.Api.Unit.Tests.DataAccess
             AssertParameter(parameters, "user_id_in", userId);
         }
         
+        [Fact(DisplayName = "Build command definition for get users operation")]
+        public void BuildGetUsersCommandDefinition()
+        {
+            var userId = Guid.NewGuid();
+            
+            var commandDefinition = _commandDefinitionBuilder.BuildGetUsersCommand(
+                "email", true, 10, "user1@test.com", "xyz");
+            
+            Assert.Equal("users.get_users", commandDefinition.CommandText);
+            Assert.Equal(CommandType.StoredProcedure, commandDefinition.CommandType);
+            
+            var parameters = Assert.IsType<DynamicParameters>(commandDefinition.Parameters);
+            
+            AssertParameter(parameters, "sort_by_in", "email");
+            AssertParameter(parameters, "sort_ascending_in", true);
+            AssertParameter(parameters, "limit_in", 10);
+            AssertParameter(parameters, "last_sort_value_in", "user1@test.com");
+            AssertParameter(parameters, "last_secondary_sort_value_in", "xyz");
+        }
+        
         private void AssertParameter<T>(DynamicParameters parameters, string name, T expectedValue)
         {
             Assert.Contains(parameters.ParameterNames, x => x == name);

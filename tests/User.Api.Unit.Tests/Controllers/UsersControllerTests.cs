@@ -21,15 +21,37 @@ namespace User.Api.Unit.Tests.Controllers
         }
 
         [Fact(DisplayName="When get users without parameters, should get users from the service using default parameter values.")]
-        public void GetUsersWithDefaultParameters()
+        public async Task GetUsersWithDefaultParameters()
         {
-            _userController.GetUsers(null, null, null);
+            var mockUserService = Mock.Get(_userService);
+
+            var users = new Users();
+            
+            mockUserService
+                .Setup(x => x.GetUsersAsync(SortByEnum.Email, 10, null))
+                .ReturnsAsync(users);
+            
+            var result = await _userController.GetUsers(null, null, null);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Same(users, okResult.Value);
         }
         
         [Fact(DisplayName="When get users, should get users from the service using the specified parameters")]
-        public void GetUsersWithParameters()
+        public async Task GetUsersWithParameters()
         {
-            _userController.GetUsers(null, null, null);
+            var mockUserService = Mock.Get(_userService);
+
+            var users = new Users();
+            
+            mockUserService
+                .Setup(x => x.GetUsersAsync(SortByEnum.Role, 100, null))
+                .ReturnsAsync(users);
+            
+            var result = await _userController.GetUsers(100, SortByEnum.Role, null);
+
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Same(users, okResult.Value);
         }
         
         [Fact(DisplayName="When get a user, should get a user from the service")]

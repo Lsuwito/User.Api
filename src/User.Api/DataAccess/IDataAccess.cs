@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dapper;
 
 namespace User.Api.DataAccess
@@ -20,8 +21,16 @@ namespace User.Api.DataAccess
         /// Query a single record. If entity is not found, return null.
         /// </summary>
         /// <param name="commandDefinition">A command definition.</param>
-        /// <typeparam name="T">Return value's type.</typeparam>
+        /// <typeparam name="T">Entity type.</typeparam>
         /// <returns>An entity.</returns>
         Task<T> QuerySingleOrDefaultAsync<T>(CommandDefinition commandDefinition);
+
+        /// <summary>
+        /// Query records.
+        /// </summary>
+        /// <param name="commandDefinition">A command definition.</param>
+        /// <typeparam name="T">Entity type.</typeparam>
+        /// <returns>A list of entities.</returns>
+        Task<IEnumerable<T>> QueryAsync<T>(CommandDefinition commandDefinition);
     }
 }

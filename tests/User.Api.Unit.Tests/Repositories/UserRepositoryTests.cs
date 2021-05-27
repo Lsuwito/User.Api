@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using Moq;
@@ -105,6 +107,26 @@ namespace User.Api.Unit.Tests.Repositories
                 .ReturnsAsync(deletedCount);
             
             Assert.Equal(deletedCount==1, await _userRepository.DeleteUserAsync(userId));
+        }
+        
+        [Fact(DisplayName = "When get users, should create a command definition and call query")]
+        public async Task GetUsers()
+        {
+            var mockCommandProvider = Mock.Get(_commandDefinitionBuilder);
+            var commandDefinition = new CommandDefinition();
+            
+            mockCommandProvider
+                .Setup(x => x.BuildGetUsersCommand("email", true, 10, "user1@test.com", "xyz"))
+                .Returns(commandDefinition);
+
+            var mockDataAccess = Mock.Get(_dataAccess);
+            var entities = Enumerable.Empty<UserEntity>();
+            mockDataAccess
+                .Setup(x => x.QueryAsync<UserEntity>(commandDefinition))
+                .ReturnsAsync(entities);
+
+            Assert.Same(entities, await _userRepository
+                .GetUsersAsync("email", true, 10, "user1@test.com", "xyz"));
         }
     }
 }

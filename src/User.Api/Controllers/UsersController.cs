@@ -30,9 +30,10 @@ namespace User.Api.Controllers
         /// <returns>An instance of <see cref="OkObjectResult"/> with a <see cref="Users"/> object as the value,
         /// or an <see cref="Error"/> object if operation fails.</returns>
         [HttpGet]
-        public IActionResult GetUsers([FromQuery] int? size, [FromQuery] SortByEnum? sortBy, [FromQuery] string cursorId)
+        public async Task<IActionResult> GetUsers([FromQuery] int? size, [FromQuery] SortByEnum? sortBy, [FromQuery] string cursorId)
         {
-            throw new NotImplementedException();
+            var users = await _userService.GetUsersAsync(sortBy ?? SortByEnum.Email, size ?? 10, cursorId);
+            return Ok(users);
         }
         
         /// <summary>

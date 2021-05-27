@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Dapper;
@@ -46,6 +47,20 @@ namespace User.Api.DataAccess
             try
             {
                 return await dbConnection.QuerySingleOrDefaultAsync<T>(commandDefinition);
+            }
+            finally
+            {
+                dbConnection.Close();
+            }
+        }
+        
+        /// <inheritdoc />
+        public async Task<IEnumerable<T>> QueryAsync<T>(CommandDefinition commandDefinition)
+        {
+            using var dbConnection = CreateConnection();
+            try
+            {
+                return await dbConnection.QueryAsync<T>(commandDefinition);
             }
             finally
             {

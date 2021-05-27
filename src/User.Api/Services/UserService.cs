@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using User.Api.Exceptions;
@@ -13,11 +17,14 @@ namespace User.Api.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IPaginationCursorConverter _paginationCursorConverter;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(IUserRepository userRepository, IMapper mapper, 
+            IPaginationCursorConverter paginationCursorConverter)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _paginationCursorConverter = paginationCursorConverter;
         }
     
         /// <inheritdoc />
@@ -62,6 +69,58 @@ namespace User.Api.Services
             }
             
             return _mapper.Map<Models.User>(entity);
+        }
+
+        /// <inheritdoc />
+        public async Task<Users> GetUsersAsync(SortByEnum sortBy, int limit, string cursorId)
+        {
+            PaginationCursor cursor = null;
+
+            if (!string.IsNullOrWhiteSpace(cursorId))
+            {
+                try
+                {
+                    cursor = _paginationCursorConverter.FromString(cursorId);
+                }
+                catch (Exception ex) when (ex is FormatException || ex is JsonException)
+                {
+                    throw new InvalidRequestException("Invalid cursor ID.", ex);
+                }
+            }
+
+            var entities = await _userRepository.GetUsersAsync(
+                sortBy.ToString().ToLowerInvariant(), true, limit, 
+                cursor?.LastSortValue, cursor?.LastSecondarySortValue);
+            
+            return new Users
+            {
+                Items = _mapper.Map<IEnumerable<Models.User>>(entities),
+                NextUrl = GenerateNextUrl(sortBy, limit, entities.LastOrDefault())
+            };
+        }
+
+        private string GenerateNextUrl(SortByEnum sortBy, int limit, UserEntity lastRecord)
+        {
+            if (lastRecord == null)
+            {
+                return null;
+            }
+
+            var entityType = lastRecord.GetType();
+            var property = entityType.GetProperty(sortBy.ToString());
+            
+            if (property == null)
+            {
+                throw new InvalidOperationException($"Property {sortBy} does not exist in {entityType.FullName}");
+            }
+
+            var cursor = new PaginationCursor
+            {
+                LastSortValue = property.GetValue(lastRecord)?.ToString(),
+                LastSecondarySortValue = lastRecord.UserId.ToString()
+            };
+
+            return $"sortBy={sortBy}&size={limit}&cursorId={_paginationCursorConverter.ToString(cursor)}";
         }
     }
 }
