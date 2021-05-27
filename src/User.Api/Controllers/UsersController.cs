@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using User.Api.Exceptions;
@@ -43,7 +44,7 @@ namespace User.Api.Controllers
         /// <returns>An instance of <see cref="OkObjectResult"/> with a <see cref="User"/> object as the value,
         /// or an <see cref="Error"/> object if operation fails.</returns>
         [HttpPost]
-        public async Task<IActionResult> CreateUserAsync([FromBody] UserRequest request)
+        public async Task<IActionResult> CreateUserAsync([FromBody, Required] UserRequest request)
         {
             var user = await _userService.CreateUserAsync(request);
             return Ok(user);
@@ -71,7 +72,7 @@ namespace User.Api.Controllers
         /// <returns>An instance of <see cref="OkObjectResult"/> with a <see cref="User"/> object as the value,
         /// or an <see cref="Error"/> object if operation fails.</returns>
         [HttpPut("{userId}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] Guid userId, [FromBody] UserRequest request)
+        public async Task<IActionResult> UpdateUser([FromRoute] Guid userId, [FromBody, Required] UserRequest request)
         {
             var user = await _userService.UpdateUserAsync(userId, request);
             return Ok(user);

@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using User.Api.Exceptions;
 using User.Api.Models;
 using User.Api.Repositories;
 using User.Api.Repositories.Entities;
+using Flurl;
 
 namespace User.Api.Services
 {
@@ -18,13 +22,16 @@ namespace User.Api.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IPaginationCursorConverter _paginationCursorConverter;
+        private readonly IOptions<PaginationOptions> _paginationOptions;
 
         public UserService(IUserRepository userRepository, IMapper mapper, 
-            IPaginationCursorConverter paginationCursorConverter)
+            IPaginationCursorConverter paginationCursorConverter,
+            IOptions<PaginationOptions> paginationOptions)
         {
             _userRepository = userRepository;
             _mapper = mapper;
             _paginationCursorConverter = paginationCursorConverter;
+            _paginationOptions = paginationOptions;
         }
     
         /// <inheritdoc />
@@ -99,7 +106,7 @@ namespace User.Api.Services
             };
         }
 
-        private string GenerateNextUrl(SortByEnum sortBy, int limit, UserEntity lastRecord)
+        private string GenerateNextUrl(SortByEnum sortBy, int size, UserEntity lastRecord)
         {
             if (lastRecord == null)
             {
@@ -120,7 +127,16 @@ namespace User.Api.Services
                 LastSecondarySortValue = lastRecord.UserId.ToString()
             };
 
-            return $"sortBy={sortBy}&size={limit}&cursorId={_paginationCursorConverter.ToString(cursor)}";
+            var cursorId = _paginationCursorConverter.ToString(cursor);
+
+            return _paginationOptions.Value.BaseUrl
+                .AppendPathSegment("users")
+                .SetQueryParams(new
+                {
+                    sortBy,
+                    size,
+                    cursorId
+                }).ToString();
         }
     }
 }

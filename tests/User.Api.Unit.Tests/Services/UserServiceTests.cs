@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.Extensions.Options;
 using Moq;
 using User.Api.Exceptions;
 using User.Api.Models;
@@ -18,6 +19,7 @@ namespace User.Api.Unit.Tests.Services
         private readonly IUserRepository _userRepository;
         private readonly UserService _userService;
         private readonly IPaginationCursorConverter _paginationCursorConverter;
+        private readonly PaginationOptions _paginationOptions;
 
         public UserServiceTests()
         {
@@ -26,7 +28,15 @@ namespace User.Api.Unit.Tests.Services
             
             _userRepository = new Mock<IUserRepository>(MockBehavior.Strict).Object;
             _paginationCursorConverter = new Mock<IPaginationCursorConverter>(MockBehavior.Strict).Object;
-            _userService = new UserService(_userRepository, mapper, _paginationCursorConverter);
+            _paginationOptions = new PaginationOptions
+            {
+                BaseUrl = "http://localhost:5000"
+            };
+            
+            var mockOptions = new Mock<IOptions<PaginationOptions>>();
+            mockOptions.Setup(x => x.Value).Returns(_paginationOptions);
+            
+            _userService = new UserService(_userRepository, mapper, _paginationCursorConverter, mockOptions.Object);
         }
 
         [Fact(DisplayName = "When create a user, should create user in repository and return a user model")]
@@ -188,7 +198,7 @@ namespace User.Api.Unit.Tests.Services
                 user => AssertUser(entities[0], user), 
                 user => AssertUser(entities[1], user));
             
-            Assert.Equal($"sortBy=Email&size=10&cursorId={cursorId}", users.NextUrl);
+            Assert.Equal($"{_paginationOptions.BaseUrl}/users?sortBy=Email&size=10&cursorId={cursorId}", users.NextUrl);
         }
 
         [Fact(DisplayName = "When get users with cursor, should get a list of users starting from the specified cursor")]
@@ -233,7 +243,7 @@ namespace User.Api.Unit.Tests.Services
 
             Assert.Collection(users.Items, user => AssertUser(entities[0], user));
             
-            Assert.Equal($"sortBy=Email&size=10&cursorId={nextCursorId}", users.NextUrl);
+            Assert.Equal($"{_paginationOptions.BaseUrl}/users?sortBy=Email&size=10&cursorId={nextCursorId}", users.NextUrl);
         }
         
         [Fact(DisplayName = "When get users and result is empty, should have no next url")]

@@ -11,6 +11,7 @@ services:
       ConnectionStrings__UsersDb: Host=db;Port=5432;Database=postgres;Username=postgres;Password=postgres;
       Serilog__MinimumLevel__Default: Verbose
       Serilog__MinimumLevel__Override__Microsoft: Verbose
+      Pagination__BaseUrl: http://localhost:5000
     depends_on:
       - db
     networks:

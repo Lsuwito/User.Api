@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using User.Api.DataAccess;
 using User.Api.Extensions;
 using User.Api.Middlewares;
+using User.Api.Models;
 using User.Api.Repositories;
 using User.Api.Services;
 
@@ -26,6 +27,8 @@ namespace User.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<PaginationOptions>(Configuration.GetSection(PaginationOptions.ConfigKey));
+            
             services.AddControllers()
                 .AddJsonOptions(options =>
                 {
@@ -40,6 +43,7 @@ namespace User.Api
             services.AddAutoMapper(typeof(Startup));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserService, UserService>();
+            services.AddSingleton<IPaginationCursorConverter,PaginationCursorConverter>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
